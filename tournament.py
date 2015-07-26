@@ -58,7 +58,6 @@ def registerPlayer(name):
     db.commit()
     db.close()
 
-
 def playerStandings():
     """Returns a list of the players and their win records, sorted by wins.
 
@@ -72,6 +71,15 @@ def playerStandings():
         wins: the number of matches the player has won
         matches: the number of matches the player has played
     """
+    db = connect()
+    c = db.cursor()
+    command = "SELECT player_id, name, wins, matches_played FROM player ORDER BY wins DESC"
+    c.execute(command)
+    players = []
+    for row in c.fetchall():
+        players += [(str(row[0]).strip(), str(row[1]).strip(), int(row[2]), int(row[3]))]
+    db.close()
+    return players
 
 
 def reportMatch(winner, loser):
