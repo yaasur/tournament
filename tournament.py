@@ -58,6 +58,7 @@ def registerPlayer(name):
     db.commit()
     db.close()
 
+
 def playerStandings():
     """Returns a list of the players and their win records, sorted by wins.
 
@@ -73,11 +74,12 @@ def playerStandings():
     """
     db = connect()
     c = db.cursor()
-    command = "SELECT player_id, name, wins, matches_played FROM player ORDER BY wins DESC"
+    command = "SELECT * FROM playerStandings"
     c.execute(command)
     players = []
     for row in c.fetchall():
-        players += [(str(row[0]).strip(), str(row[1]).strip(), int(row[2]), int(row[3]))]
+        players += [(str(row[0]).strip(), str(row[1]).strip(),
+                    int(row[2]), int(row[3]))]
     db.close()
     return players
 
@@ -93,8 +95,8 @@ def reportMatch(winner, loser):
     c = db.cursor()
     args = [winner, loser]
     for val in args:
-        c.execute("UPDATE player SET matches_played = matches_played+1 WHERE player_id = %s", (val,))
-    c.execute("UPDATE player SET wins = wins+1 WHERE player_id = %s", (winner,))
+        c.execute("UPDATE player SET matches=matches+1 WHERE id = %s", (val,))
+    c.execute("UPDATE player SET wins=wins+1 WHERE id = %s", (winner,))
     db.commit()
     db.close()
 
@@ -114,3 +116,14 @@ def swissPairings():
         id2: the second player's unique id
         name2: the second player's name
     """
+    # For resolving the simple case :
+    # Because the playerStadings return all players in order of wins
+    # the easiest way to pair them is picking and pairing them two by two.
+    pList = playerStandings()
+    swissPairings = []
+    x = 0
+    while x < len(pList):
+        y = x+1
+        swissPairings += [(pList[x][0], pList[x][1], pList[y][0], pList[y][1])]
+        x += 2
+    return swissPairings
